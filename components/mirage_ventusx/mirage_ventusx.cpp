@@ -197,9 +197,7 @@ bool MirageVentusXClimate::on_receive(remote_base::RemoteReceiveData data) {
            d[6], d[7], d[8], d[9], d[10], d[11]);
 
   // Byte 0-2: Verify the header bytes are correct (static data)
-  if (d[0] != VENTUSX_HEADER_B0 ||
-      d[1] != VENTUSX_HEADER_B1 ||
-      d[2] != VENTUSX_HEADER_B2 )
+  if (d[0] != VENTUSX_HEADER_B0 )
   {
     ESP_LOGV(TAG, "Invalid header received, skipped");
     return false;
