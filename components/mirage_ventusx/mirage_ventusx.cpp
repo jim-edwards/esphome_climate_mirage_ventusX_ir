@@ -29,7 +29,8 @@ const uint8_t MIRAGE_SWING_HORIZONTAL = 0x01;
 const uint8_t MIRAGE_SWING_VERTICAL = 0x1A;*/
 
 const uint8_t VENTUSX_HEADER_B0 = 0x64;
-const uint8_t VENTUSX_HEADER_B1 = 0x80;
+const uint8_t VENTUSX_HEADER_B1_WAKE = 0x40;
+const uint8_t VENTUSX_HEADER_B1_DATA = 0x80;
 const uint8_t VENTUSX_HEADER_B2 = 0x00;
 
 const uint8_t VENTUSX_TEMP_OFFSET = 60;
@@ -175,9 +176,7 @@ void MirageVentusXClimate::transmit_state() {
 }
 
 bool MirageVentusXClimate::on_receive(remote_base::RemoteReceiveData data) {
-  // Ignore the duplicate second frame the unit always sends
   uint32_t now = millis();
-  if (now - this->last_receive_ < 200) return false;
   this->last_receive_ = now;
 
   auto decoded = esphome::remote_base::AEHAProtocol().decode(data);
@@ -200,6 +199,18 @@ bool MirageVentusXClimate::on_receive(remote_base::RemoteReceiveData data) {
   if (d[0] != VENTUSX_HEADER_B0 )
   {
     ESP_LOGV(TAG, "Invalid header received, skipped");
+    return false;
+  }
+
+  if (d[1] == VENTUSX_HEADER_B1_WAKE)
+  {
+    ESP_LOGV(TAG, "Wake packet, skipped");
+    return false;
+  }
+
+  if (d[1] != VENTUSX_HEADER_B1_DATA)
+  {
+    ESP_LOGV(TAG, "Unknown packet, skipped");
     return false;
   }
 

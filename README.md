@@ -13,7 +13,7 @@ The protocol uses an **AEHA (Japanese A/C IR standard) framing format** with a *
 - **Address:** `0xC4D3`
 - **Payload Length:** 12 bytes
 - **Transmission:** Full-state packet (entire HVAC state sent every time)
-- **Repeat:** Each command is transmitted **twice**
+- **Repeat:** Each command has 2 packets, a "Wake" packet first, followed by the data.
 
 ---
 
@@ -34,8 +34,18 @@ The protocol uses an **AEHA (Japanese A/C IR standard) framing format** with a *
 
 ## Header (Bytes 0–3)
 
-### Byte 0-2 (Constants)
-[0x64, 0x80, 0x00]
+### Byte 0 (ID)
+Always `0x64`
+
+### Byte 1 (Type)
+
+| Value | Meaning |
+|------|--------|
+| `0x80` | Data Packet |
+| `0x40` | Wake or ID Packet |
+
+### Byte 2 (Reserved)
+Always `0x00`
 
 ### Byte 3 (Flags)
 
@@ -74,6 +84,10 @@ Minimum: 61°F
 Maximum: 88°F
 
 Temperature is encoded as:
+73f = 0x10
+74f = 0x10
+75f = 0xE0
+
 
 ```c
 data[5] = (temp_f - 60) * 8;
