@@ -35,9 +35,13 @@ const uint8_t VENTUSX_HEADER_B2 = 0x00;
 
 const uint8_t VENTUSX_TEMP_OFFSET = 60;
 
-const uint8_t VENTUSX_POWER_OFF = 0x04;
-const uint8_t VENTUSX_POWER_ON_DISPLAY_ON = 0x24;
-const uint8_t VENTUSX_POWER_ON_DISPLAY_OFF = 0x26;
+//const uint8_t VENTUSX_POWER_OFF = 0x04;
+//const uint8_t VENTUSX_POWER_ON_DISPLAY_ON = 0x24;
+//const uint8_t VENTUSX_POWER_ON_DISPLAY_OFF = 0x26;
+
+const uint8_t VENTUSX_B3_BIT_DISPLAY = 0x02;
+const uint8_t VENTUSX_B3_BIT_POWER = 0x04;
+const uint8_t VENTUSX_B3_BIT_UNIT_POWER = 0x20;
 
 /*
 void MirageClimate::transmit_state()
@@ -191,7 +195,7 @@ bool MirageVentusXClimate::on_receive(remote_base::RemoteReceiveData data) {
 
   ESP_LOGD(TAG, "RX AEHA addr=0x%04X data_size=%d", decoded->address, (int) decoded->data.size());
   ESP_LOGVV(TAG,
-           "RX VentusX\n  Header: %02X %02X %02X %02X\n  Mode: %02X\n  Temp: %02X\n Fran: %02X\n Reserved: %02X %02X %02X\n  Horz Swing: %02X\n  Checksum: %02X",
+           "RX VentusX\n  Header: %02X %02X %02X %02X\n  Mode: %02X\n  Temp: %02X\n  Fan: %02X\n  Reserved: %02X %02X %02X\n  Horz Swing: %02X\n  Checksum: %02X",
            d[0], d[1], d[2], d[3], d[4], d[5],
            d[6], d[7], d[8], d[9], d[10], d[11]);
 
@@ -219,6 +223,30 @@ bool MirageVentusXClimate::on_receive(remote_base::RemoteReceiveData data) {
   // TODO: Byte 3: Power
 
   // TODO: Byte 4: Mode
+  if (d[4] & VENTUSX_B3_BIT_UNIT_POWER)
+  {
+    ESP_LOGVV(TAG, "Decoded unit power=on from byte4=0x%02X", d[4]);
+  }
+  else
+  {
+    ESP_LOGVV(TAG, "Decoded unit power=off from byte4=0x%02X", d[4]);
+  }
+  if (d[4] & VENTUSX_B3_BIT_POWER)
+  {
+    ESP_LOGVV(TAG, "Decoded power=on from byte4=0x%02X", d[4]);
+  }
+  else
+  {
+    ESP_LOGVV(TAG, "Decoded power=off from byte4=0x%02X", d[4]);
+  }
+  if (d[4] & VENTUSX_B3_BIT_DISPLAY)
+  {
+    ESP_LOGVV(TAG, "Decoded display=on from byte4=0x%02X", d[4]);
+  }
+  else
+  {
+    ESP_LOGVV(TAG, "Decoded display=off from byte4=0x%02X", d[4]);
+  }
 
   // Byte 5: - Decode the temp
   uint8_t temp_f = (d[5] / 8) + VENTUSX_TEMP_OFFSET;
@@ -233,7 +261,7 @@ bool MirageVentusXClimate::on_receive(remote_base::RemoteReceiveData data) {
   this->target_temperature = temp_f;
   this->mode = climate::CLIMATE_MODE_COOL;
 
-  this->publish_state();
+  //this->publish_state();
   return true;
 }
 
