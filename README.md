@@ -78,20 +78,32 @@ Upper nibble encodes HVAC mode:
 ---
 
 ## Temperature (Byte 5)
-
 Supported Range
 Minimum: 61°F
 Maximum: 88°F
 
-Temperature is encoded as:
-73f = 0x10
-74f = 0x10
-75f = 0xE0
+Temperature is encoded as a lookup in orders of 2 in the upper nibble:
 
+| Byte Value | Temp Meaning |
+|------------|--------------|
+| 0 | 88f |
+| 1 | 73f |
+| 2 | 81f |
+| 3 | 66f |
+| 4 | 84f |
+| 5 | 70f |
+| 6 | 77f |
+| 7 | 63f |
+| 8 | 86f |
+| 9 | 72f |
+| 10 | 79f |
+| 11 | 64f |
+| 12 | 82f |
+| 13 | 68f |
+| 14 | 75f |
+| 15 | 61f |
 
-```c
-data[5] = (temp_f - 60) * 8;
-```
+Then odd numbers are determined by setting bit `0x20` in byte 10
 
 ---
 
@@ -143,6 +155,7 @@ Likely unused padding
 
 ### Bit Meaning
 `0x10` → Horizontal swing ON
+`0x20` → Odd number for temp (See temperature)
 Base value `0x21` always present
 
 ---

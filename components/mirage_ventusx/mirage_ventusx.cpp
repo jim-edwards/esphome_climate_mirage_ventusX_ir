@@ -221,9 +221,7 @@ bool MirageVentusXClimate::on_receive(remote_base::RemoteReceiveData data) {
   // TODO: Byte 11: Verify the checksum
 
   // TODO: Byte 3: Power
-
-  // TODO: Byte 4: Mode
-  if (d[4] & VENTUSX_B3_BIT_UNIT_POWER)
+  if (d[3] & VENTUSX_B3_BIT_UNIT_POWER)
   {
     ESP_LOGVV(TAG, "Decoded unit power=on from byte4=0x%02X", d[4]);
   }
@@ -231,7 +229,7 @@ bool MirageVentusXClimate::on_receive(remote_base::RemoteReceiveData data) {
   {
     ESP_LOGVV(TAG, "Decoded unit power=off from byte4=0x%02X", d[4]);
   }
-  if (d[4] & VENTUSX_B3_BIT_POWER)
+  if (d[3] & VENTUSX_B3_BIT_POWER)
   {
     ESP_LOGVV(TAG, "Decoded power=on from byte4=0x%02X", d[4]);
   }
@@ -239,7 +237,7 @@ bool MirageVentusXClimate::on_receive(remote_base::RemoteReceiveData data) {
   {
     ESP_LOGVV(TAG, "Decoded power=off from byte4=0x%02X", d[4]);
   }
-  if (d[4] & VENTUSX_B3_BIT_DISPLAY)
+  if (d[3] & VENTUSX_B3_BIT_DISPLAY)
   {
     ESP_LOGVV(TAG, "Decoded display=on from byte4=0x%02X", d[4]);
   }
@@ -248,12 +246,15 @@ bool MirageVentusXClimate::on_receive(remote_base::RemoteReceiveData data) {
     ESP_LOGVV(TAG, "Decoded display=off from byte4=0x%02X", d[4]);
   }
 
+  // TODO: Byte 4: Mode
+
   // Byte 5 upper nibble → base temp (°F); byte 10 bit 0x20 → +1 for high of each pair
   static const uint8_t VENTUSX_TEMP_TABLE[16] = {
       88, 73, 81, 66, 84, 70, 77, 63,
       86, 72, 79, 64, 82, 68, 75, 61};
   uint8_t temp_f = VENTUSX_TEMP_TABLE[(d[5] >> 4) & 0xF];
-  if (d[10] & 0x20) temp_f++;
+  if (d[10] & 0x20)
+    temp_f++;
   ESP_LOGVV(TAG, "Decoded temp=%d from byte5=0x%02X byte10=0x%02X", temp_f, d[5], d[10]);
 
   // TODO: Byte 6: Fan + Vert Swing + Mute
@@ -262,10 +263,11 @@ bool MirageVentusXClimate::on_receive(remote_base::RemoteReceiveData data) {
 
   // TODO: Byte 10: Horiz Swing
 
+  // Build and publish the final object state
   this->target_temperature = temp_f;
   this->mode = climate::CLIMATE_MODE_COOL;
-
   //this->publish_state();
+
   return true;
 }
 
