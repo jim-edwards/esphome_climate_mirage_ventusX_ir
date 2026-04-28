@@ -248,9 +248,13 @@ bool MirageVentusXClimate::on_receive(remote_base::RemoteReceiveData data) {
     ESP_LOGVV(TAG, "Decoded display=off from byte4=0x%02X", d[4]);
   }
 
-  // Byte 5: - Decode the temp
-  uint8_t temp_f = (d[5] / 8) + VENTUSX_TEMP_OFFSET;
-  ESP_LOGVV(TAG, "Decoded temp=%d from byte5=0x%02X", temp_f, d[5]);
+  // Byte 5 upper nibble → base temp (°F); byte 10 bit 0x20 → +1 for high of each pair
+  static const uint8_t VENTUSX_TEMP_TABLE[16] = {
+      88, 73, 81, 66, 84, 70, 77, 63,
+      86, 72, 79, 64, 82, 68, 75, 61};
+  uint8_t temp_f = VENTUSX_TEMP_TABLE[(d[5] >> 4) & 0xF];
+  if (d[10] & 0x20) temp_f++;
+  ESP_LOGVV(TAG, "Decoded temp=%d from byte5=0x%02X byte10=0x%02X", temp_f, d[5], d[10]);
 
   // TODO: Byte 6: Fan + Vert Swing + Mute
 
