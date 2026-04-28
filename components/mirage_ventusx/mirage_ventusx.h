@@ -5,8 +5,8 @@
 namespace esphome {
 namespace mirage_ventusx {
 
-const float VENTUSX_TEMP_MIN = 60.0f;
-const float VENTUSX_TEMP_MAX = 80.0f;
+const float VENTUSX_TEMP_MIN = 61.0f;
+const float VENTUSX_TEMP_MAX = 88.0f;
 
 class MirageVentusXClimate : public climate_ir::ClimateIR {
  public:
