@@ -10,6 +10,7 @@ static const char *const TAG = "mirage_ventusx.climate";
 const uint8_t VENTUSX_STATE_LENGTH = 12;
 const uint16_t VENTUSX_ADDRESS = 0xC4D3;
 
+const uint8_t VENTUSX_B4_MODE_MASK = 0xF0;
 const uint8_t VENTUSX_B4_HEAT = 0x80;
 const uint8_t VENTUSX_B4_COOL = 0xC0;
 const uint8_t VENTUSX_B4_DRY = 0x40;
@@ -247,7 +248,7 @@ bool MirageVentusXClimate::on_receive(remote_base::RemoteReceiveData data) {
   }
 
   // Byte 4: Mode
-  switch( d4 )
+  switch (d[4] & VENTUSX_B4_MODE_MASK)
   {
     case VENTUSX_B4_HEAT:
       this->mode = climate::CLIMATE_MODE_HEAT;
