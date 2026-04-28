@@ -34,32 +34,29 @@ The protocol uses an **AEHA (Japanese A/C IR standard) framing format** with a *
 
 ## Header (Bytes 0–3)
 
-### Byte 0 (ID)
+### ID (Byte 0)
 Always `0x64`
 
-### Byte 1 (Type)
+### Type (Byte 1)
 
 | Value | Meaning |
 |------|--------|
 | `0x80` | Data Packet |
 | `0x40` | Wake or ID Packet |
 
-### Byte 2 (Reserved)
+### Reserved (Byte 2)
 Always `0x00`
 
-### Byte 3 (Flags)
+### Base Flags (Byte 3)
 
 | Value | Meaning |
 |------|--------|
-| `0x24` | Normal ON state |
-| `0x04` | Power OFF |
-| `0x26` | Display OFF |
+| `0x20` | Unit Power On |
+| `0x02` | Display On (Inverted) |
 
-### Bit Meaning (Byte 3)
+### Notes
 
-- `0x20` → Unit ON
-- `0x04` → Power command
-- `0x02` → Display toggle
+Bitmap flags
 
 ---
 
@@ -146,17 +143,15 @@ Always preserve unrelated bits when modifying
 Always zero in all observed packets
 Likely unused padding
 
-## Horizontal Swing (Byte 10)
+## Bit Flags (Byte 10)
 
 | Mode | Value |
 |------|------|
-| OFF | `0x21` |
-| ON | `0x31` |
+| `0x10` | Horizontal swing |
+| `0x20` | Odd number for temp (See temperature) |
 
-### Bit Meaning
-`0x10` → Horizontal swing ON
-`0x20` → Odd number for temp (See temperature)
-Base value `0x21` always present
+### Notes
+Base value `0x01` always present??
 
 ---
 
