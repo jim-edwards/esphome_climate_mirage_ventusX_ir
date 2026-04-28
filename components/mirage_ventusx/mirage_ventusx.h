@@ -11,7 +11,11 @@ const float VENTUSX_TEMP_MAX = 88.0f;
 class MirageVentusXClimate : public climate_ir::ClimateIR {
  public:
   MirageVentusXClimate()
-      : climate_ir::ClimateIR(VENTUSX_TEMP_MIN, VENTUSX_TEMP_MAX, 1.0f, true, false, {}, {}) {}
+      : climate_ir::ClimateIR(VENTUSX_TEMP_MIN, VENTUSX_TEMP_MAX, 1.0f, true, true,
+                              {climate::CLIMATE_FAN_AUTO, climate::CLIMATE_FAN_LOW,
+                               climate::CLIMATE_FAN_MEDIUM, climate::CLIMATE_FAN_HIGH},
+                              {climate::CLIMATE_SWING_OFF, climate::CLIMATE_SWING_VERTICAL,
+                               climate::CLIMATE_SWING_HORIZONTAL, climate::CLIMATE_SWING_BOTH}) {}
 
  protected:
   void transmit_state() override;
