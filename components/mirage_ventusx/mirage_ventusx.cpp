@@ -32,7 +32,7 @@ const uint8_t VENTUSX_HEADER_B0 = 0x64;
 const uint8_t VENTUSX_HEADER_B1 = 0x80;
 const uint8_t VENTUSX_HEADER_B2 = 0x00;
 
-const unint8_t VENTUSX_TEMP_OFFSET = 60;
+const uint8_t VENTUSX_TEMP_OFFSET = 60;
 
 const uint8_t VENTUSX_POWER_OFF = 0x04;
 const uint8_t VENTUSX_POWER_ON_DISPLAY_ON = 0x24;
