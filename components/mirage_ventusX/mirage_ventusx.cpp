@@ -7,7 +7,7 @@ namespace esphome
   namespace mirage_ventusx
   {
 
-    static const char *TAG = "mirage_ventusx";
+    static const char *TAG = "mirage_ventusx.climate";
 
     void MirageVentusXClimate::setup()
     {
