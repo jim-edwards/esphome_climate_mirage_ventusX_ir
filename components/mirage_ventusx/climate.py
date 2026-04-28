@@ -10,9 +10,7 @@ CODEOWNERS = ["@bitflipper11"]
 ventusx_ns = cg.esphome_ns.namespace("mirage_ventusx")
 VentusXClimate = ventusx_ns.class_("MirageVentusXClimate", climate.Climate, cg.Component)
 
-CONFIG_SCHEMA = climate.CLIMATE_SCHEMA.extend({
-    cv.GenerateID(): cv.declare_id(VentusXClimate),
-}).extend(cv.COMPONENT_SCHEMA)
+CONFIG_SCHEMA = climate.climate_schema(VentusXClimate).extend(cv.COMPONENT_SCHEMA)
 
 
 async def to_code(config):
