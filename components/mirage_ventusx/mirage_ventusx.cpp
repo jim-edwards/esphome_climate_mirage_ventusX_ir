@@ -10,19 +10,19 @@ static const char *const TAG = "mirage_ventusx.climate";
 const uint8_t VENTUSX_STATE_LENGTH = 12;
 const uint16_t VENTUSX_ADDRESS = 0xC4D3;
 
-/*const uint8_t MIRAGE_HEAT = 0x10;
-const uint8_t MIRAGE_COOL = 0x20;
-const uint8_t MIRAGE_DRY = 0x30;
-const uint8_t MIRAGE_AUTO = 0x40;
-const uint8_t MIRAGE_FAN = 0x50;*/
+const uint8_t VENTUSX_B4_HEAT = 0x80;
+const uint8_t VENTUSX_B4_COOL = 0xC0;
+const uint8_t VENTUSX_B4_DRY = 0x40;
+const uint8_t VENTUSX_B4_AUTO = 0x10;
+const uint8_t VENTUSX_B4_FAN = 0xE0;
 
-const uint8_t VENTUSX_FAN_AUTO = 0x10;
-const uint8_t VENTUSX_FAN_LOW = 0x50;
-const uint8_t VENTUSX_FAN_LOW_MID = 0x70;
-const uint8_t VENTUSX_FAN_MID = 0xD0;
-const uint8_t VENTUSX_FAN_MID_HIGH = 0x90;
-const uint8_t VENTUSX_FAN_HIGH = 0xB0;
-const uint8_t VENTUSX_FAN_TURBO = 0xB0;
+const uint8_t VENTUSX_B6_FAN_AUTO = 0x10;
+const uint8_t VENTUSX_B6_FAN_LOW = 0x50;
+const uint8_t VENTUSX_B6_FAN_LOW_MID = 0x70;
+const uint8_t VENTUSX_B6_FAN_MID = 0xD0;
+const uint8_t VENTUSX_B6_FAN_MID_HIGH = 0x90;
+const uint8_t VENTUSX_B6_FAN_HIGH = 0xB0;
+const uint8_t VENTUSX_B6_FAN_TURBO = 0xB0;
 
 /*const uint8_t MIRAGE_SWING_MASK = 0x1F;
 const uint8_t MIRAGE_SWING_HORIZONTAL = 0x01;
@@ -39,7 +39,7 @@ const uint8_t VENTUSX_TEMP_OFFSET = 60;
 //const uint8_t VENTUSX_POWER_ON_DISPLAY_ON = 0x24;
 //const uint8_t VENTUSX_POWER_ON_DISPLAY_OFF = 0x26;
 
-const uint8_t VENTUSX_B3_BIT_DISPLAY = 0x02;
+const uint8_t VENTUSX_B3_BIT_DISPLAY_OFF = 0x02;
 const uint8_t VENTUSX_B3_BIT_POWER = 0x04;
 const uint8_t VENTUSX_B3_BIT_UNIT_POWER = 0x20;
 
@@ -220,33 +220,58 @@ bool MirageVentusXClimate::on_receive(remote_base::RemoteReceiveData data) {
 
   // TODO: Byte 11: Verify the checksum
 
-  // TODO: Byte 3: Power
+  // Byte 3: Power
   if (d[3] & VENTUSX_B3_BIT_UNIT_POWER)
   {
-    ESP_LOGVV(TAG, "Decoded unit power=on from byte4=0x%02X", d[4]);
+    ESP_LOGVV(TAG, "Decoded unit power=on from byte3=0x%02X", d[3]);
   }
   else
   {
-    ESP_LOGVV(TAG, "Decoded unit power=off from byte4=0x%02X", d[4]);
+    ESP_LOGVV(TAG, "Decoded unit power=off from byte3=0x%02X", d[3]);
   }
   if (d[3] & VENTUSX_B3_BIT_POWER)
   {
-    ESP_LOGVV(TAG, "Decoded power=on from byte4=0x%02X", d[4]);
+    ESP_LOGVV(TAG, "Decoded power=on from byte3=0x%02X", d[3]);
   }
   else
   {
-    ESP_LOGVV(TAG, "Decoded power=off from byte4=0x%02X", d[4]);
+    ESP_LOGVV(TAG, "Decoded power=off from byte3=0x%02X", d[3]);
   }
-  if (d[3] & VENTUSX_B3_BIT_DISPLAY)
+  if (d[3] & VENTUSX_B3_BIT_DISPLAY_OFF)
   {
-    ESP_LOGVV(TAG, "Decoded display=on from byte4=0x%02X", d[4]);
+    ESP_LOGVV(TAG, "Decoded display=off from byte3=0x%02X", d[3]);
   }
   else
   {
-    ESP_LOGVV(TAG, "Decoded display=off from byte4=0x%02X", d[4]);
+    ESP_LOGVV(TAG, "Decoded display=on from byte3=0x%02X", d[3]);
   }
 
-  // TODO: Byte 4: Mode
+  // Byte 4: Mode
+  switch( d4 )
+  {
+    case VENTUSX_B4_HEAT:
+      this->mode = climate::CLIMATE_MODE_HEAT;
+      ESP_LOGVV(TAG, "Decoded mode=heat from byte4=0x%02X", d[4]);
+      break;
+    case VENTUSX_B4_COOL:
+      this->mode = climate::CLIMATE_MODE_COOL;
+      ESP_LOGVV(TAG, "Decoded mode=cool from byte4=0x%02X", d[4]);
+      break;
+    case VENTUSX_B4_DRY:
+      this->mode = climate::CLIMATE_MODE_DRY;
+      ESP_LOGVV(TAG, "Decoded mode=dry from byte4=0x%02X", d[4]);
+      break;
+    case VENTUSX_B4_AUTO:
+      this->mode = climate::CLIMATE_MODE_HEAT_COOL;
+      ESP_LOGVV(TAG, "Decoded mode=auto from byte4=0x%02X", d[4]);
+      break;
+    case VENTUSX_B4_FAN:
+      this->mode = climate::CLIMATE_MODE_FAN_ONLY;
+      ESP_LOGVV(TAG, "Decoded mode=fan_only from byte4=0x%02X", d[4]);
+      break;
+  }
+
+  // TODO: Handle case case climate::CLIMATE_MODE_OFF:
 
   // Byte 5 upper nibble → base temp (°F); byte 10 bit 0x20 → +1 for high of each pair
   static const uint8_t VENTUSX_TEMP_TABLE[16] = {
