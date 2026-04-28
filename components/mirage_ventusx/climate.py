@@ -1,12 +1,13 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
-from esphome.components import climate_ir, remote_receiver, remote_transmitter
+from esphome.components import climate
 from esphome.const import CONF_ID
 
 AUTO_LOAD = ["remote_transmitter", "remote_receiver"]
+DEPENDENCIES = ["climate"]
 CODEOWNERS = ["@bitflipper11"]
 
-ventusx_ns = cg.esphome_ns.namespace("mirage_vetusx")
+ventusx_ns = cg.esphome_ns.namespace("mirage_ventusx")
 VentusXClimate = ventusx_ns.class_("MirageVentusXClimate", climate.Climate, cg.Component)
 
 CONFIG_SCHEMA = climate.CLIMATE_SCHEMA.extend({
