@@ -174,7 +174,7 @@ void MirageVentusXClimate::transmit_state()
   esphome::remote_base::AEHAProtocol().encode(tx_data, aeha_wakeup);
   transmit.perform();
 
-  delay(40);
+  delay(100);
 
   // Send the actual data
   esphome::remote_base::AEHAData aeha;
@@ -184,7 +184,7 @@ void MirageVentusXClimate::transmit_state()
   transmit = this->transmitter_->transmit();
   tx_data = transmit.get_data();
   esphome::remote_base::AEHAProtocol().encode(tx_data, aeha);
-  transmit.set_send_times(2);
+  //transmit.set_send_times(2);
   transmit.perform();
 }
 
