@@ -64,7 +64,7 @@ uint8_t MirageVentusXClimate::calc_checksum(const uint8_t *data, uint8_t len)
 void MirageVentusXClimate::transmit_state()
 {
   this->last_transmit_time_ = millis(); // setting the time of the last transmission.
-  uint8_t remote_state[MIRAGE_STATE_LENGTH] = {0};
+  uint8_t remote_state[VENTUSX_STATE_LENGTH] = {0};
 
   // Header
   remote_state[0] = VENTUSX_HEADER_B0;
@@ -137,7 +137,7 @@ void MirageVentusXClimate::transmit_state()
   ESP_LOGVV(TAG,
             "RX VentusX\n  Header: %02X %02X %02X %02X\n  Mode: %02X\n  Temp: %02X\n  Fan: %02X\n  Reserved: %02X %02X %02X\n  Horz Swing: %02X\n  Checksum: %02X",
             remote_state[0], remote_state[1], remote_state[2], remote_state[3], remote_state[4], remote_state[5],
-            remote_state[6], remote_state[7], remote_state[8], remote_stated[9], remote_state[10], remote_state[11]);
+            remote_state[6], remote_state[7], remote_state[8], remote_state[9], remote_state[10], remote_state[11]);
 
   ESP_LOGD(TAG, "TX temp=%d byte5=0x%02X checksum=0x%02X", temp, remote_state[5], remote_state[11]);
 
@@ -145,10 +145,10 @@ void MirageVentusXClimate::transmit_state()
   esphome::remote_base::AEHAData aeha_wakeup;
   aeha.address = VENTUSX_ADDRESS;
   uint8_t wakeup_packet[12] = {
-      0x64, 0x80, 0x00, 0x24,
-      0xC0, 0x00, 0x1C, 0x00,
-      0x00, 0x00, 0x01, 0x00};
-  }
+      0x64, 0x40, 0x00, 0x02,
+      0x04, 0x10, 0x03, 0x00,
+      0x00, 0x00, 0x00, 0xB2};
+
   aeha_wakeup.data.assign(wakeup_packet, wakeup_packet + VENTUSX_STATE_LENGTH);
   auto transmit = this->transmitter_->transmit();
   auto *tx_data = transmit.get_data();
