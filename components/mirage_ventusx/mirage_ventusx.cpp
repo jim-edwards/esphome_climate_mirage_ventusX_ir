@@ -63,7 +63,7 @@ uint8_t MirageVentusXClimate::calc_checksum(const uint8_t *data, uint8_t len)
 
 void MirageVentusXClimate::transmit_state()
 {
-  this->last_transmit_time_ = millis(); // setting the time of the last transmission.
+  this->last_transmit_ = millis(); // setting the time of the last transmission.
   uint8_t remote_state[VENTUSX_STATE_LENGTH] = {0};
 
   // Header
@@ -143,7 +143,7 @@ void MirageVentusXClimate::transmit_state()
 
   // Send the wakeup packet (hard-coded)
   esphome::remote_base::AEHAData aeha_wakeup;
-  aeha.address = VENTUSX_ADDRESS;
+  aeha_wakeup.address = VENTUSX_ADDRESS;
   uint8_t wakeup_packet[12] = {
       0x64, 0x40, 0x00, 0x02,
       0x04, 0x10, 0x03, 0x00,
