@@ -150,7 +150,7 @@ void MirageVentusXClimate::transmit_state()
   remote_state[11] = calc_checksum(remote_state, VENTUSX_STATE_LENGTH - 1);
 
   ESP_LOGVV(TAG,
-            "RX VentusX\n  Header: %02X %02X %02X %02X\n  Mode: %02X\n  Temp: %02X\n  Fan: %02X\n  Reserved: %02X %02X %02X\n  Horz Swing: %02X\n  Checksum: %02X",
+            "TX VentusX\n  Header: %02X %02X %02X %02X\n  Mode: %02X\n  Temp: %02X\n  Fan: %02X\n  Reserved: %02X %02X %02X\n  Horz Swing: %02X\n  Checksum: %02X",
             remote_state[0], remote_state[1], remote_state[2], remote_state[3], remote_state[4], remote_state[5],
             remote_state[6], remote_state[7], remote_state[8], remote_state[9], remote_state[10], remote_state[11]);
 
@@ -180,6 +180,7 @@ void MirageVentusXClimate::transmit_state()
   transmit = this->transmitter_->transmit();
   tx_data = transmit.get_data();
   esphome::remote_base::AEHAProtocol().encode(tx_data, aeha);
+  transmit.set_send_times(2);
   transmit.perform();
 }
 
