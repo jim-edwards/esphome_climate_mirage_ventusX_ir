@@ -157,7 +157,11 @@ Base value `0x01` always present??
 
 ## Checksum (Byte 11)
 
-Checksum is a simple additive sum:
-```c
-checksum = (sum of bytes 0–10) & 0xFF;
+Checksum is calculated by taking the reverse bit pattern for each byte, then sum the bytes and perform a simple function, then reverse the resulting byte again.
+```
+For a data array d = [d0, d1, ..., d10]:
+
+Compute s = rev(d0) + rev(d1) + ... + rev(d10)
+Compute temp = (s - 0x12) % 256
+Checksum = rev(temp)
 ```

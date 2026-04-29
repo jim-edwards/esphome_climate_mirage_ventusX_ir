@@ -309,9 +309,10 @@ bool MirageVentusXClimate::on_receive(remote_base::RemoteReceiveData data) {
   
 
   // Byte 6: Fan speed (upper nibble) + vertical swing (bits 3:2)
-  switch (d[6] & VENTUSX_B6_FAN_MASK) {
+  switch (d[6] & VENTUSX_B6_FAN_MASK)
+  {
     case 0x00:                 // auto + swing OFF (no swing bits, no fan nibble)
-    case VENTUSX_B6_FAN_AUTO:  // 0x10 = auto + swing ON
+    case VENTUSX_B6_FAN_AUTO:
       this->fan_mode = climate::CLIMATE_FAN_AUTO;
       break;
     case VENTUSX_B6_FAN_LOW:
@@ -326,8 +327,8 @@ bool MirageVentusXClimate::on_receive(remote_base::RemoteReceiveData data) {
       this->fan_mode = climate::CLIMATE_FAN_HIGH;
       break;
     default:
-      this->fan_mode = climate::CLIMATE_FAN_AUTO;
-      break;
+      ESP_LOGW(TAG, "Invalid fan mode received from byte6=0x%02X", d[6]);
+      return false;
   }
   bool swing_vert = (d[6] & VENTUSX_B6_SWING_VERT_BITS) != 0;
   ESP_LOGV(TAG, "Decoded fan=0x%02X swing_vert=%d from byte6=0x%02X",
