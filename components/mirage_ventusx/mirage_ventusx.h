@@ -24,6 +24,7 @@ class MirageVentusXClimate : public climate_ir::ClimateIR {
    bool on_receive(remote_base::RemoteReceiveData data) override;
 
    uint32_t last_receive_{0};
+   uint32_t last_transmit_time_{0};
 };
 
 }  // namespace mirage_ventusx
