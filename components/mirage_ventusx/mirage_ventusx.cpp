@@ -99,9 +99,24 @@ void MirageVentusXClimate::transmit_state()
       break;
   }
 
-  // Temperature
-  auto temp = (uint8_t)roundf(clamp(this->target_temperature, float(16), float(32)));
-  remote_state[1] += temp;
+  // Temperature — inverse of the on_receive lookup table, indexed by (temp_f - 61), 28 entries for 61–88°F
+  static const uint8_t VENTUSX_TEMP_BYTE5[28] = {
+      0xF0, 0xF0, 0x70, 0xB0, 0xB0, 0x30, 0x30, 0xD0, 0xD0, 0x50,
+      0x50, 0x90, 0x10, 0x10, 0xE0, 0xE0, 0x60, 0x60, 0xA0, 0xA0,
+      0x20, 0xC0, 0xC0, 0x40, 0x40, 0x80, 0x80, 0x00};
+  static const bool VENTUSX_TEMP_ODD[28] = {
+      false, true,  false, false, true,  false, true,  false, true,  false,
+      true,  false, false, true,  false, true,  false, true,  false, true,
+      false, false, true,  false, true,  false, true,  false};
+
+  float temp_c = clamp(this->target_temperature, VENTUSX_TEMP_MIN, VENTUSX_TEMP_MAX);
+  auto temp = (uint8_t) roundf(temp_c * 9.0f / 5.0f + 32.0f);  // convert °C → °F
+  if (temp < 61) temp = 61;
+  if (temp > 88) temp = 88;
+  uint8_t enc = temp - 61;
+  remote_state[5] = VENTUSX_TEMP_BYTE5[enc];
+  if (VENTUSX_TEMP_ODD[enc])
+    remote_state[10] |= VENTUSX_B10_TEMP_ODD_BIT;
 
   // Fan speed
   switch (this->fan_mode.value())
@@ -282,8 +297,9 @@ bool MirageVentusXClimate::on_receive(remote_base::RemoteReceiveData data) {
   if (d[10] & 0x20) {
     temp_f++;
   }
-  this->target_temperature = temp_f;
-  ESP_LOGV(TAG, "Decoded temp=%d from byte5=0x%02X byte10=0x%02X", temp_f, d[5], d[10]);
+  this->target_temperature = (temp_f - 32.0f) * 5.0f / 9.0f;  // convert °F → °C
+  ESP_LOGV(TAG, "Decoded temp=%d°F (%.1f°C) from byte5=0x%02X byte10=0x%02X",
+           temp_f, this->target_temperature, d[5], d[10]);
   
 
   // Byte 6: Fan speed (upper nibble) + vertical swing (bits 3:2)
