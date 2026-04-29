@@ -40,7 +40,7 @@ const uint8_t VENTUSX_B6_SWING_VERT_MASK = 0x1C;
 
 const uint8_t VENTUSX_B10_SWING_HORIZ_BIT = 0x10;
 const uint8_t VENTUSX_B10_TEMP_ODD_BIT = 0x20;
-
+const uint8_t VENTUSX_B10_SWING_ALWAYS_SET = 0x01;
 
 // Bit-reverse an 8-bit value (e.g. 0b00000001 -> 0b10000000)
 uint8_t MirageVentusXClimate::bit_reverse(uint8_t b)
@@ -148,6 +148,7 @@ void MirageVentusXClimate::transmit_state()
   {
     remote_state[10] |= VENTUSX_B10_SWING_HORIZ_BIT;
   }
+  remote_state[10] |= VENTUSX_B10_SWING_ALWAYS_SET;
 
   // Checksum
   remote_state[11] = calc_checksum(remote_state, VENTUSX_STATE_LENGTH - 1);
