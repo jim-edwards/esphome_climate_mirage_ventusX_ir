@@ -10,6 +10,17 @@ static const char *const TAG = "mirage_ventusx.climate";
 const uint8_t VENTUSX_STATE_LENGTH = 12;
 const uint16_t VENTUSX_ADDRESS = 0xC4D3;
 
+const uint8_t VENTUSX_TEMP_OFFSET = 60;
+
+const uint8_t VENTUSX_HEADER_B0 = 0x64;
+const uint8_t VENTUSX_HEADER_B1_WAKE = 0x40;
+const uint8_t VENTUSX_HEADER_B1_DATA = 0x80;
+const uint8_t VENTUSX_HEADER_B2 = 0x00;
+
+const uint8_t VENTUSX_B3_BIT_DISPLAY_OFF = 0x02;
+const uint8_t VENTUSX_B3_BIT_UNIT_POWER = 0x20;
+const uint8_t VENTUSX_B3_BIT_UNIT_ALWAYS_SET = 0x04;
+
 const uint8_t VENTUSX_B4_MODE_MASK = 0xF0;
 const uint8_t VENTUSX_B4_MODE_HEAT = 0x80;
 const uint8_t VENTUSX_B4_MODE_COOL = 0xC0;
@@ -30,15 +41,6 @@ const uint8_t VENTUSX_B6_SWING_VERT_MASK = 0x1C;
 const uint8_t VENTUSX_B10_SWING_HORIZ_BIT = 0x10;
 const uint8_t VENTUSX_B10_TEMP_ODD_BIT = 0x20;
 
-const uint8_t VENTUSX_HEADER_B0 = 0x64;
-const uint8_t VENTUSX_HEADER_B1_WAKE = 0x40;
-const uint8_t VENTUSX_HEADER_B1_DATA = 0x80;
-const uint8_t VENTUSX_HEADER_B2 = 0x00;
-
-const uint8_t VENTUSX_TEMP_OFFSET = 60;
-
-const uint8_t VENTUSX_B3_BIT_DISPLAY_OFF = 0x02;
-const uint8_t VENTUSX_B3_BIT_UNIT_POWER = 0x20;
 
 // Bit-reverse an 8-bit value (e.g. 0b00000001 -> 0b10000000)
 uint8_t MirageVentusXClimate::bit_reverse(uint8_t b)
@@ -77,6 +79,7 @@ void MirageVentusXClimate::transmit_state()
   {
     remote_state[3] |= VENTUSX_B3_BIT_UNIT_POWER;
   }
+  remote_state[3] |= VENTUSX_B3_BIT_UNIT_ALWAYS_SET;
 
   switch (this->mode)
   {
