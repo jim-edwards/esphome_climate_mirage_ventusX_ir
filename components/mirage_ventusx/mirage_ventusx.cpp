@@ -11,21 +11,21 @@ const uint8_t VENTUSX_STATE_LENGTH = 12;
 const uint16_t VENTUSX_ADDRESS = 0xC4D3;
 
 const uint8_t VENTUSX_B4_MODE_MASK = 0xF0;
-const uint8_t VENTUSX_B4_HEAT = 0x80;
-const uint8_t VENTUSX_B4_COOL = 0xC0;
-const uint8_t VENTUSX_B4_DRY = 0x40;
-const uint8_t VENTUSX_B4_AUTO = 0x10;
-const uint8_t VENTUSX_B4_FAN = 0xE0;
+const uint8_t VENTUSX_B4_MODE_HEAT = 0x80;
+const uint8_t VENTUSX_B4_MODE_COOL = 0xC0;
+const uint8_t VENTUSX_B4_MODE_DRY = 0x40;
+const uint8_t VENTUSX_B4_MODE_AUTO = 0x10;
+const uint8_t VENTUSX_B4_MODE_FAN = 0xE0;
+
+const uint8_t VENTUSX_B4_TURBO_BIT = 0x02;
 
 const uint8_t VENTUSX_B6_FAN_MASK = 0xF0;
 const uint8_t VENTUSX_B6_FAN_AUTO = 0x10;
 const uint8_t VENTUSX_B6_FAN_LOW = 0x50;
-const uint8_t VENTUSX_B6_FAN_LOW_MID = 0x70;
 const uint8_t VENTUSX_B6_FAN_MID = 0xD0;
-const uint8_t VENTUSX_B6_FAN_MID_HIGH = 0x90;
 const uint8_t VENTUSX_B6_FAN_HIGH = 0xB0;
-const uint8_t VENTUSX_B6_FAN_TURBO = 0xB0;
-const uint8_t VENTUSX_B6_SWING_VERT_BITS = 0x0C;
+
+const uint8_t VENTUSX_B6_SWING_VERT_MASK = 0x0C;
 
 const uint8_t VENTUSX_B10_SWING_HORIZ_BIT = 0x10;
 const uint8_t VENTUSX_B10_TEMP_ODD_BIT = 0x20;
@@ -252,29 +252,39 @@ bool MirageVentusXClimate::on_receive(remote_base::RemoteReceiveData data) {
   // Byte 4: Mode
   switch (d[4] & VENTUSX_B4_MODE_MASK)
   {
-    case VENTUSX_B4_HEAT:
+    case VENTUSX_B4_MODE_HEAT:
       this->mode = climate::CLIMATE_MODE_HEAT;
       ESP_LOGV(TAG, "Decoded mode=heat from byte4=0x%02X", d[4]);
       break;
-    case VENTUSX_B4_COOL:
+    case VENTUSX_B4_MODE_COOL:
       this->mode = climate::CLIMATE_MODE_COOL;
       ESP_LOGV(TAG, "Decoded mode=cool from byte4=0x%02X", d[4]);
       break;
-    case VENTUSX_B4_DRY:
+    case VENTUSX_B4_MODE_DRY:
       this->mode = climate::CLIMATE_MODE_DRY;
       ESP_LOGV(TAG, "Decoded mode=dry from byte4=0x%02X", d[4]);
       break;
-    case VENTUSX_B4_AUTO:
+    case VENTUSX_B4_MODE_AUTO:
       this->mode = climate::CLIMATE_MODE_HEAT_COOL;
       ESP_LOGV(TAG, "Decoded mode=auto from byte4=0x%02X", d[4]);
       break;
-    case VENTUSX_B4_FAN:
+    case VENTUSX_B4_MODE_FAN:
       this->mode = climate::CLIMATE_MODE_FAN_ONLY;
       ESP_LOGV(TAG, "Decoded mode=fan_only from byte4=0x%02X", d[4]);
       break;
     default:
       ESP_LOGW(TAG, "Invalid mode received from byte4=0x%02X", d[4]);
       return false;
+  }
+
+  // Byte 4: Bitmaps (no mapping in the control, so just log)
+  if (d[4] & VENTUSX_B4_TURBO_BIT)
+  {
+    ESP_LOGV(TAG, "Decoded turbo=on from byte4=0x%02X", d[4]);
+  }
+  else
+  {
+    ESP_LOGV(TAG, "Decoded turbo=off from byte4=0x%02X", d[4]);
   }
 
   // Byte 3: Power (out of order so the mode is set for power)
@@ -287,6 +297,7 @@ bool MirageVentusXClimate::on_receive(remote_base::RemoteReceiveData data) {
     ESP_LOGV(TAG, "Decoded unit power=off from byte3=0x%02X", d[3]);
     this->mode = climate::CLIMATE_MODE_OFF;
   }
+  // (no mapping in the control, so just log)
   if (d[3] & VENTUSX_B3_BIT_DISPLAY_OFF)
   {
     ESP_LOGV(TAG, "Decoded display=off from byte3=0x%02X", d[3]);
@@ -311,26 +322,23 @@ bool MirageVentusXClimate::on_receive(remote_base::RemoteReceiveData data) {
   // Byte 6: Fan speed (upper nibble) + vertical swing (bits 3:2)
   switch (d[6] & VENTUSX_B6_FAN_MASK)
   {
-    case 0x00:                 // auto + swing OFF (no swing bits, no fan nibble)
     case VENTUSX_B6_FAN_AUTO:
       this->fan_mode = climate::CLIMATE_FAN_AUTO;
       break;
     case VENTUSX_B6_FAN_LOW:
-    case VENTUSX_B6_FAN_LOW_MID:
       this->fan_mode = climate::CLIMATE_FAN_LOW;
       break;
     case VENTUSX_B6_FAN_MID:
-    case VENTUSX_B6_FAN_MID_HIGH:
       this->fan_mode = climate::CLIMATE_FAN_MEDIUM;
       break;
-    case VENTUSX_B6_FAN_HIGH:  // TURBO shares this value; turbo is a byte 4 flag
+    case VENTUSX_B6_FAN_HIGH:
       this->fan_mode = climate::CLIMATE_FAN_HIGH;
       break;
     default:
       ESP_LOGW(TAG, "Invalid fan mode received from byte6=0x%02X", d[6]);
       return false;
   }
-  bool swing_vert = (d[6] & VENTUSX_B6_SWING_VERT_BITS) != 0;
+  bool swing_vert = (d[6] & VENTUSX_B6_SWING_VERT_MASK) != 0;
   ESP_LOGV(TAG, "Decoded fan=0x%02X swing_vert=%d from byte6=0x%02X",
            d[6] & VENTUSX_B6_FAN_MASK, swing_vert, d[6]);
 
