@@ -156,7 +156,7 @@ inline uint8_t MirageVentusXClimate::bit_reverse(uint8_t b)
   return b;
 }
 
-inline uint8_t calc_checksum(const uint8_t *data, uint8_t len = 11)
+inline uint8_t MirageVentusXClimate::calc_checksum(const uint8_t *data, uint8_t len = 11)
 {
   uint16_t sum = 0;
   for (size_t i = 0; i < len; ++i)
