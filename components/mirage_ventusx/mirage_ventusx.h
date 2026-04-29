@@ -18,10 +18,11 @@ class MirageVentusXClimate : public climate_ir::ClimateIR {
                                climate::CLIMATE_SWING_HORIZONTAL, climate::CLIMATE_SWING_BOTH}) {}
 
  protected:
-  void transmit_state() override;
-  bool on_receive(remote_base::RemoteReceiveData data) override;
+   uint8_t calc_checksum(const uint8_t *data, uint8 len);
+   void transmit_state() override;
+   bool on_receive(remote_base::RemoteReceiveData data) override;
 
-  uint32_t last_receive_{0};
+   uint32_t last_receive_{0};
 };
 
 }  // namespace mirage_ventusx

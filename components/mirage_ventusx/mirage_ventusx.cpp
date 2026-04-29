@@ -147,6 +147,21 @@ void MirageClimate::transmit_state()
 }
 */
 
+uint8_t MirageVentusXClimate::calc_checksum(const uint8_t *data, uint8 len)
+{
+  uint16_t sum = 0;
+
+  for (int i = 0; i < len; i++)
+    sum += data[i];
+
+  uint8_t chk = (0x100 - (sum & 0xFF)) & 0xFF;
+
+  // bias (derived from captures)
+  chk ^= 0xD0;
+
+  return chk;
+}
+
 void MirageVentusXClimate::transmit_state() {
   uint8_t data[12] = {
       0x64, 0x80, 0x00, 0x24,
@@ -222,8 +237,7 @@ bool MirageVentusXClimate::on_receive(remote_base::RemoteReceiveData data) {
   }
 
   // Byte 11: Checksum — sum of bytes 0–10, masked to 8 bits
-  uint8_t checksum = 0;
-  for (int i = 0; i < 11; i++) checksum += d[i];
+  uint8_t checksum = calc_checksum(d, VENTUSX_STATE_LENGTH-1);
   if (checksum != d[11]) {
     ESP_LOGW(TAG, "Checksum mismatch: calculated 0x%02X != received 0x%02X", checksum, d[11]);
     return false;
@@ -252,6 +266,9 @@ bool MirageVentusXClimate::on_receive(remote_base::RemoteReceiveData data) {
       this->mode = climate::CLIMATE_MODE_FAN_ONLY;
       ESP_LOGV(TAG, "Decoded mode=fan_only from byte4=0x%02X", d[4]);
       break;
+    default:
+      ESP_LOGW(TAG, "Invalid mode received from byte4=0x%02X", d[4]);
+      return false;
   }
 
   // Byte 3: Power (out of order so the mode is set for power)
