@@ -21,9 +21,9 @@ const uint8_t VENTUSX_B4_TURBO_BIT = 0x02;
 
 const uint8_t VENTUSX_B6_FAN_MASK = 0xE0;
 const uint8_t VENTUSX_B6_FAN_AUTO = 0x00;
-const uint8_t VENTUSX_B6_FAN_LOW = 0x50;
-const uint8_t VENTUSX_B6_FAN_MID = 0xD0;
-const uint8_t VENTUSX_B6_FAN_HIGH = 0xB0;
+const uint8_t VENTUSX_B6_FAN_LOW = 0x40;
+const uint8_t VENTUSX_B6_FAN_MID = 0xC0;
+const uint8_t VENTUSX_B6_FAN_HIGH = 0xA0;
 
 const uint8_t VENTUSX_B6_SWING_VERT_MASK = 0x0C;
 
