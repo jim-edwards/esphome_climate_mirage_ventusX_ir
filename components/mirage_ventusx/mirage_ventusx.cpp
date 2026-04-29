@@ -147,19 +147,25 @@ void MirageClimate::transmit_state()
 }
 */
 
-uint8_t MirageVentusXClimate::calc_checksum(const uint8_t *data, uint8 len)
+// Bit-reverse an 8-bit value (e.g. 0b00000001 -> 0b10000000)
+inline uint8_t MirageVentusXClimate::bit_reverse(uint8_t b)
+{
+  b = (b & 0xF0) >> 4 | (b & 0x0F) << 4; // swap nibbles
+  b = (b & 0xCC) >> 2 | (b & 0x33) << 2; // swap pairs
+  b = (b & 0xAA) >> 1 | (b & 0x55) << 1; // swap bits
+  return b;
+}
+
+inline uint8_t calc_checksum(const uint8_t *data, uint8_t len = 11)
 {
   uint16_t sum = 0;
+  for (size_t i = 0; i < len; ++i)
+  {
+    sum += bit_reverse(data[i]);
+  }
 
-  for (int i = 0; i < len; i++)
-    sum += data[i];
-
-  uint8_t chk = (0x100 - (sum & 0xFF)) & 0xFF;
-
-  // bias (derived from captures)
-  chk ^= 0xD0;
-
-  return chk;
+  uint8_t temp = (sum - 0x12) % 256;
+  return bit_reverse(temp);
 }
 
 void MirageVentusXClimate::transmit_state() {
