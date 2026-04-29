@@ -63,7 +63,7 @@ uint8_t MirageVentusXClimate::calc_checksum(const uint8_t *data, uint8_t len)
 
 void MirageVentusXClimate::transmit_state()
 {
-  this->last_transmit_ = millis(); // setting the time of the last transmission.
+  this->last_transmit_time_ = millis(); // setting the time of the last transmission.
   uint8_t remote_state[VENTUSX_STATE_LENGTH] = {0};
 
   // Header
