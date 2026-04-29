@@ -18,7 +18,8 @@ class MirageVentusXClimate : public climate_ir::ClimateIR {
                                climate::CLIMATE_SWING_HORIZONTAL, climate::CLIMATE_SWING_BOTH}) {}
 
  protected:
-   uint8_t calc_checksum(const uint8_t *data, uint8 len);
+   uint8_t bit_reverse(uint8_t b);
+   uint8_t calc_checksum(const uint8_t *data, uint8_t len);
    void transmit_state() override;
    bool on_receive(remote_base::RemoteReceiveData data) override;
 

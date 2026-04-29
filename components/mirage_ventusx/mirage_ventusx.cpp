@@ -148,7 +148,7 @@ void MirageClimate::transmit_state()
 */
 
 // Bit-reverse an 8-bit value (e.g. 0b00000001 -> 0b10000000)
-inline uint8_t MirageVentusXClimate::bit_reverse(uint8_t b)
+uint8_t MirageVentusXClimate::bit_reverse(uint8_t b)
 {
   b = (b & 0xF0) >> 4 | (b & 0x0F) << 4; // swap nibbles
   b = (b & 0xCC) >> 2 | (b & 0x33) << 2; // swap pairs
@@ -156,7 +156,7 @@ inline uint8_t MirageVentusXClimate::bit_reverse(uint8_t b)
   return b;
 }
 
-inline uint8_t MirageVentusXClimate::calc_checksum(const uint8_t *data, uint8_t len = 11)
+uint8_t MirageVentusXClimate::calc_checksum(const uint8_t *data, uint8_t len)
 {
   uint16_t sum = 0;
   for (size_t i = 0; i < len; ++i)
