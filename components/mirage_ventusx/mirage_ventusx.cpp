@@ -19,8 +19,8 @@ const uint8_t VENTUSX_B4_MODE_FAN = 0xE0;
 
 const uint8_t VENTUSX_B4_TURBO_BIT = 0x02;
 
-const uint8_t VENTUSX_B6_FAN_MASK = 0xF0;
-const uint8_t VENTUSX_B6_FAN_AUTO = 0x10;
+const uint8_t VENTUSX_B6_FAN_MASK = 0xE0;
+const uint8_t VENTUSX_B6_FAN_AUTO = 0x00;
 const uint8_t VENTUSX_B6_FAN_LOW = 0x50;
 const uint8_t VENTUSX_B6_FAN_MID = 0xD0;
 const uint8_t VENTUSX_B6_FAN_HIGH = 0xB0;
@@ -29,10 +29,6 @@ const uint8_t VENTUSX_B6_SWING_VERT_MASK = 0x0C;
 
 const uint8_t VENTUSX_B10_SWING_HORIZ_BIT = 0x10;
 const uint8_t VENTUSX_B10_TEMP_ODD_BIT = 0x20;
-
-/*const uint8_t MIRAGE_SWING_MASK = 0x1F;
-const uint8_t MIRAGE_SWING_HORIZONTAL = 0x01;
-const uint8_t MIRAGE_SWING_VERTICAL = 0x1A;*/
 
 const uint8_t VENTUSX_HEADER_B0 = 0x64;
 const uint8_t VENTUSX_HEADER_B1_WAKE = 0x40;
